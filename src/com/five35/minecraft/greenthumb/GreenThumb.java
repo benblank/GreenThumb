@@ -9,6 +9,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import java.util.Random;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockDispenser;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemDye;
@@ -59,6 +60,7 @@ public class GreenThumb {
 
 			LanguageRegistry.addName(GreenThumb.fertilizer, "Crude Fertilizer");
 			GameRegistry.addShapelessRecipe(new ItemStack(GreenThumb.fertilizer), new ItemStack(Item.dyePowder, 1, 15), new ItemStack(Item.rottenFlesh));
+			BlockDispenser.dispenseBehaviorRegistry.putObject(GreenThumb.fertilizer, new FertilizerDispenserBehavior());
 		}
 	}
 
