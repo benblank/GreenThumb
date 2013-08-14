@@ -5,9 +5,12 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.LanguageRegistry;
 import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -23,12 +26,14 @@ public class GreenThumb {
 	public static GreenThumb instance;
 
 	static Configuration config;
-	static boolean easyMode;
+	static int fertilizerID;
+	public static Fertilizer fertilizer;
 
 	private final Random random = new Random();
 
+	// this method is called within ItemDye wherever it would otherwise call ItemDye.applyBonemeal
 	public static boolean applyBonemeal(final ItemStack stack, final World world, final int x, final int y, final int z, final EntityPlayer player) {
-		if (GreenThumb.easyMode) {
+		if (GreenThumb.fertilizerID == 0) {
 			return ItemDye.applyBonemeal(stack, world, x, y, z, player);
 		}
 
@@ -40,7 +45,7 @@ public class GreenThumb {
 		GreenThumb.config = new Configuration(event.getSuggestedConfigurationFile());
 		GreenThumb.config.load();
 
-		GreenThumb.easyMode = GreenThumb.config.get(Configuration.CATEGORY_GENERAL, "easy_mode", false, "if false (the default), you cannot grow plants with bonemeal and must use fertilizer instead").isBooleanValue();
+		GreenThumb.fertilizerID = GreenThumb.config.getItem("fertilizer", 20732, "set to 0 to disable fertilizer and use bonemeal to grow plants").getInt();
 
 		GreenThumb.config.save(); // if config file was missing, this will write the defaults
 	}
@@ -48,6 +53,13 @@ public class GreenThumb {
 	@EventHandler
 	public void init(@SuppressWarnings("unused") final FMLInitializationEvent event) {
 		MinecraftForge.EVENT_BUS.register(this);
+
+		if (GreenThumb.fertilizerID > 0) {
+			GreenThumb.fertilizer = new Fertilizer(GreenThumb.fertilizerID);
+
+			LanguageRegistry.addName(GreenThumb.fertilizer, "Crude Fertilizer");
+			GameRegistry.addShapelessRecipe(new ItemStack(GreenThumb.fertilizer), new ItemStack(Item.dyePowder, 1, 15), new ItemStack(Item.rottenFlesh));
+		}
 	}
 
 	@ForgeSubscribe
