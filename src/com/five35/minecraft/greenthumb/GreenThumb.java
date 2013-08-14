@@ -74,6 +74,18 @@ public class GreenThumb {
 			} else {
 				return;
 			}
+		} else if (event.ID == Block.vine.blockID) {
+			int y = event.Y;
+
+			while (event.world.getBlockId(event.X, --y, event.Z) == event.ID) {
+				// find the block below the bottommost vine
+			}
+
+			if (!event.world.isAirBlock(event.X, y, event.Z) || y < 0) {
+				return;
+			}
+
+			event.world.setBlock(event.X, y, event.Z, event.ID, event.world.getBlockMetadata(event.X, event.Y, event.Z), 2);
 		} else if (event.ID == Block.waterlily.blockID) {
 			int count = 0;
 
