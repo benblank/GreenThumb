@@ -52,6 +52,10 @@ public class GreenThumb {
 
 	@ForgeSubscribe
 	public void onBonemeal(final BonemealEvent event) {
+		if (event.world.isRemote) {
+			return;
+		}
+
 		if (event.ID == Block.cactus.blockID || event.ID == Block.reed.blockID) {
 			int height = 1;
 			int y = event.Y;
@@ -74,6 +78,17 @@ public class GreenThumb {
 			} else {
 				return;
 			}
+		} else if (event.ID == Block.netherStalk.blockID) {
+			int stage = event.world.getBlockMetadata(event.X, event.Y, event.Z);
+
+			if (stage >= 3) {
+				return;
+			}
+
+			// 50% chance of extra growth; 2-3 applications to go from newly-planted to fully-grown
+			stage += this.random.nextInt(2) == 0 ? 1 : 2;
+
+			event.world.setBlockMetadataWithNotify(event.X, event.Y, event.Z, Math.min(stage, 3), 2);
 		} else if (event.ID == Block.vine.blockID) {
 			int y = event.Y;
 
@@ -85,7 +100,7 @@ public class GreenThumb {
 				return;
 			}
 
-			event.world.setBlock(event.X, y, event.Z, event.ID, event.world.getBlockMetadata(event.X, event.Y, event.Z), 2);
+			event.world.setBlock(event.X, y, event.Z, event.ID, event.world.getBlockMetadata(event.X, y + 1, event.Z), 2);
 		} else if (event.ID == Block.waterlily.blockID) {
 			int count = 0;
 
@@ -105,21 +120,19 @@ public class GreenThumb {
 			int attempts = 0;
 
 			// attempt to place a new lily pad in a 7x7 square centered on this one
-			if (!event.world.isRemote) {
-				while (true) {
-					final int x = event.X + this.random.nextInt(7) - 3;
-					final int z = event.Z + this.random.nextInt(7) - 3;
+			while (true) {
+				final int x = event.X + this.random.nextInt(7) - 3;
+				final int z = event.Z + this.random.nextInt(7) - 3;
 
-					if (event.world.isAirBlock(x, event.Y, z) && Block.waterlily.canBlockStay(event.world, x, event.Y, z)) {
-						event.world.setBlock(x, event.Y, z, Block.waterlily.blockID, 0, 2);
+				if (event.world.isAirBlock(x, event.Y, z) && Block.waterlily.canBlockStay(event.world, x, event.Y, z)) {
+					event.world.setBlock(x, event.Y, z, Block.waterlily.blockID, 0, 2);
 
-						break;
-					}
+					break;
+				}
 
-					// give up (and don't consume bonemeal) after 10 failed attempts at placement
-					if (++attempts > 9) {
-						return;
-					}
+				// give up (and don't consume bonemeal) after 10 failed attempts at placement
+				if (++attempts > 9) {
+					return;
 				}
 			}
 		} else {
