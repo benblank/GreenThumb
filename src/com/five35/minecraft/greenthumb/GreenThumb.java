@@ -10,7 +10,6 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
-import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.entity.player.EntityPlayer;
@@ -32,8 +31,6 @@ public class GreenThumb {
 	static Configuration config;
 	static int fertilizerID;
 	public static Fertilizer fertilizer;
-
-	private final Random random = new Random();
 
 	// this method is called within ItemDye wherever it would otherwise call ItemDye.applyBonemeal
 	public static boolean applyBonemeal(final ItemStack stack, final World world, final int x, final int y, final int z, final EntityPlayer player) {
@@ -68,6 +65,7 @@ public class GreenThumb {
 	}
 
 	@ForgeSubscribe
+	@SuppressWarnings("static-method")
 	public void onBonemeal(final BonemealEvent event) {
 		if (event.world.isRemote) {
 			return;
@@ -98,7 +96,7 @@ public class GreenThumb {
 		} else if (event.ID == Block.melonStem.blockID || event.ID == Block.pumpkinStem.blockID) {
 			// 95% chance, same as saplings
 			// abort if stem isn't fully-grown (that's handled by the vanilla method)
-			if (this.random.nextInt(20) > 9 || event.world.getBlockMetadata(event.X, event.Y, event.Z) < 7) {
+			if (event.world.rand.nextInt(20) > 9 || event.world.getBlockMetadata(event.X, event.Y, event.Z) < 7) {
 				return;
 			}
 
@@ -120,7 +118,7 @@ public class GreenThumb {
 				return;
 			}
 
-			final int direction = this.random.nextInt(4);
+			final int direction = event.world.rand.nextInt(4);
 			final int x = event.X + Direction.offsetX[direction];
 			final int z = event.Z + Direction.offsetZ[direction];
 
@@ -143,7 +141,7 @@ public class GreenThumb {
 			}
 
 			// 50% chance of extra growth; 2-3 applications to go from newly-planted to fully-grown
-			stage += this.random.nextInt(2) == 0 ? 1 : 2;
+			stage += event.world.rand.nextInt(2) == 0 ? 1 : 2;
 
 			event.world.setBlockMetadataWithNotify(event.X, event.Y, event.Z, Math.min(stage, 3), 2);
 		} else if (event.ID == Block.vine.blockID) {
@@ -178,8 +176,8 @@ public class GreenThumb {
 
 			// attempt to place a new lily pad in a 7x7 square centered on this one
 			while (true) {
-				final int x = event.X + this.random.nextInt(7) - 3;
-				final int z = event.Z + this.random.nextInt(7) - 3;
+				final int x = event.X + event.world.rand.nextInt(7) - 3;
+				final int z = event.Z + event.world.rand.nextInt(7) - 3;
 
 				if (event.world.isAirBlock(x, event.Y, z) && Block.waterlily.canBlockStay(event.world, x, event.Y, z)) {
 					event.world.setBlock(x, event.Y, z, Block.waterlily.blockID, 0, 2);
