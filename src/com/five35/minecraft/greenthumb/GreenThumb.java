@@ -1,8 +1,5 @@
 package com.five35.minecraft.greenthumb;
 
-import net.minecraft.block.BlockStem;
-import net.minecraftforge.common.ForgeDirection;
-import net.minecraft.util.Direction;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -12,12 +9,15 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDispenser;
+import net.minecraft.block.BlockStem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
 import net.minecraft.world.World;
 import net.minecraftforge.common.Configuration;
+import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.Event.Result;
 import net.minecraftforge.event.ForgeSubscribe;
@@ -94,9 +94,8 @@ public class GreenThumb {
 				return;
 			}
 		} else if (event.ID == Block.melonStem.blockID || event.ID == Block.pumpkinStem.blockID) {
-			// 95% chance, same as saplings
 			// abort if stem isn't fully-grown (that's handled by the vanilla method)
-			if (event.world.rand.nextInt(20) > 9 || event.world.getBlockMetadata(event.X, event.Y, event.Z) < 7) {
+			if (event.world.getBlockMetadata(event.X, event.Y, event.Z) < 7) {
 				return;
 			}
 
@@ -118,21 +117,29 @@ public class GreenThumb {
 				return;
 			}
 
-			final int direction = event.world.rand.nextInt(4);
-			final int x = event.X + Direction.offsetX[direction];
-			final int z = event.Z + Direction.offsetZ[direction];
+			// 50% chance
+			if (event.world.rand.nextInt(2) == 0) {
+				int attempts = 0;
 
-			if (!event.world.isAirBlock(x, event.Y, z)) {
-				return;
+				while (true) {
+					final int direction = event.world.rand.nextInt(4);
+					final int x = event.X + Direction.offsetX[direction];
+					final int z = event.Z + Direction.offsetZ[direction];
+
+					if (event.world.isAirBlock(x, event.Y, z)) {
+						final Block soil = Block.blocksList[event.world.getBlockId(x, event.Y - 1, z)];
+
+						if (soil != null && (soil == Block.dirt || soil == Block.grass || soil.canSustainPlant(event.world, x, event.Y - 1, z, ForgeDirection.UP, stem))) {
+							event.world.setBlock(x, event.Y, z, stem.fruitType.blockID);
+						}
+
+					}
+
+					if (++attempts > 9) {
+						return;
+					}
+				}
 			}
-
-			final Block soil = Block.blocksList[event.world.getBlockId(x, event.Y - 1, z)];
-
-			if (soil == null || !(soil == Block.dirt || soil == Block.grass || soil.canSustainPlant(event.world, x, event.Y - 1, z, ForgeDirection.UP, stem))) {
-				return;
-			}
-
-			event.world.setBlock(x, event.Y, z, stem.fruitType.blockID);
 		} else if (event.ID == Block.netherStalk.blockID) {
 			int stage = event.world.getBlockMetadata(event.X, event.Y, event.Z);
 
@@ -140,8 +147,9 @@ public class GreenThumb {
 				return;
 			}
 
-			// 50% chance of extra growth; 2-3 applications to go from newly-planted to fully-grown
-			stage += event.world.rand.nextInt(2) == 0 ? 1 : 2;
+			// ~29% chance of extra growth; 2-3 applications to go from newly-planted to fully-grown
+			// chance of needing three applications is ~sqrt(.5) * ~sqrt(.5) == ~50%
+			stage += event.world.rand.nextFloat() < .707 ? 1 : 2;
 
 			event.world.setBlockMetadataWithNotify(event.X, event.Y, event.Z, Math.min(stage, 3), 2);
 		} else if (event.ID == Block.vine.blockID) {
