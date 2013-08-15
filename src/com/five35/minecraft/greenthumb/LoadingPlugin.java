@@ -6,7 +6,7 @@ import java.util.Map;
 public class LoadingPlugin implements IFMLLoadingPlugin {
 	@Override
 	public String[] getASMTransformerClass() {
-		return new String[] { BonemealTransformer.class.getName() };
+		return new String[] { BonemealTransformer.class.getName(), StemTransformer.class.getName() };
 	}
 
 	@Override

@@ -1,5 +1,8 @@
 package com.five35.minecraft.greenthumb;
 
+import net.minecraft.block.BlockStem;
+import net.minecraftforge.common.ForgeDirection;
+import net.minecraft.util.Direction;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -92,6 +95,46 @@ public class GreenThumb {
 			} else {
 				return;
 			}
+		} else if (event.ID == Block.melonStem.blockID || event.ID == Block.pumpkinStem.blockID) {
+			// 95% chance, same as saplings
+			// abort if stem isn't fully-grown (that's handled by the vanilla method)
+			if (this.random.nextInt(20) > 9 || event.world.getBlockMetadata(event.X, event.Y, event.Z) < 7) {
+				return;
+			}
+
+			final BlockStem stem = (BlockStem) Block.blocksList[event.ID];
+
+			if (event.world.getBlockId(event.X - 1, event.Y, event.Z) == stem.fruitType.blockID) {
+				return;
+			}
+
+			if (event.world.getBlockId(event.X + 1, event.Y, event.Z) == stem.fruitType.blockID) {
+				return;
+			}
+
+			if (event.world.getBlockId(event.X, event.Y, event.Z - 1) == stem.fruitType.blockID) {
+				return;
+			}
+
+			if (event.world.getBlockId(event.X, event.Y, event.Z + 1) == stem.fruitType.blockID) {
+				return;
+			}
+
+			final int direction = this.random.nextInt(4);
+			final int x = event.X + Direction.offsetX[direction];
+			final int z = event.Z + Direction.offsetZ[direction];
+
+			if (!event.world.isAirBlock(x, event.Y, z)) {
+				return;
+			}
+
+			final Block soil = Block.blocksList[event.world.getBlockId(x, event.Y - 1, z)];
+
+			if (soil == null || !(soil == Block.dirt || soil == Block.grass || soil.canSustainPlant(event.world, x, event.Y - 1, z, ForgeDirection.UP, stem))) {
+				return;
+			}
+
+			event.world.setBlock(x, event.Y, z, stem.fruitType.blockID);
 		} else if (event.ID == Block.netherStalk.blockID) {
 			int stage = event.world.getBlockMetadata(event.X, event.Y, event.Z);
 
