@@ -21,6 +21,8 @@ public class BonemealTransformer implements IClassTransformer {
 			return bytes;
 		}
 
+		System.out.printf("[Green Thumb] Patching class %s (%s)\n", name, BonemealTransformer.CLASS_NAME);
+
 		final ClassNode classNode = new ClassNode();
 		final ClassReader classReader = new ClassReader(bytes);
 
@@ -36,6 +38,8 @@ public class BonemealTransformer implements IClassTransformer {
 					final MethodInsnNode methodInsn = (MethodInsnNode) insn;
 
 					if (methodInsn.name.equals(BonemealTransformer.METHOD_NAME)) {
+						System.out.printf("[Green Thumb] Altering call to applyBonemeal in %s\n", method.name);
+
 						methodInsn.owner = Type.getInternalName(GreenThumb.class);
 					}
 				}

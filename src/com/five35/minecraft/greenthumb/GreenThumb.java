@@ -131,6 +131,8 @@ public class GreenThumb {
 
 						if (soil != null && (soil == Block.dirt || soil == Block.grass || soil.canSustainPlant(event.world, x, event.Y - 1, z, ForgeDirection.UP, stem))) {
 							event.world.setBlock(x, event.Y, z, stem.fruitType.blockID);
+
+							break;
 						}
 
 					}
