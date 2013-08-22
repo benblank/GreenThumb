@@ -6,7 +6,6 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.LanguageRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.BlockStem;
@@ -58,7 +57,6 @@ public class GreenThumb {
 		if (GreenThumb.fertilizerID > 0) {
 			GreenThumb.fertilizer = new Fertilizer(GreenThumb.fertilizerID);
 
-			LanguageRegistry.addName(GreenThumb.fertilizer, "Crude Fertilizer");
 			GameRegistry.addShapelessRecipe(new ItemStack(GreenThumb.fertilizer), new ItemStack(Item.dyePowder, 1, 15), new ItemStack(Item.rottenFlesh));
 			BlockDispenser.dispenseBehaviorRegistry.putObject(GreenThumb.fertilizer, new FertilizerDispenserBehavior());
 		}
