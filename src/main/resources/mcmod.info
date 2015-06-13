@@ -1,24 +1,13 @@
-{
-	"modinfoversion": 2,
-
-	"modlist": [
-		{
-			"modid": "GreenThumb",
-			"name": "Green Thumb",
-			"description": "Ever wish you could bonemeal cactus?",
-			"version": "1.0.1",
-			"mcversion": "1.6.2",
-			"url": "https://github.com/benblank/GreenThumb",
-			"updateUrl": "",
-			"authors": [ "535" ],
-			"credits": "",
-			"logoFile": "",
-			"screenshots": [],
-			"parent": "",
-			"requiredMods": [ "Forge" ],
-			"dependencies": [],
-			"dependants": [],
-			"useDependencyInformation": "true"
-		}
-	]
-}
+[
+	{
+		"modid": "${modid}",
+		"name": "Green Thumb",
+		"description": "Ever wish you could bonemeal cactus?",
+		"version": "${version}",
+		"mcversion": "${mcversion}",
+		"url": "https://github.com/benblank/GreenThumb",
+		"authorList": [ "Ben \"535\" Blank" ],
+		"requiredMods": [ "Forge" ],
+		"useDependencyInformation": "true"
+	}
+]

@@ -25,6 +25,12 @@ targetCompatibility = 1.7
 dependencies {
 }
 
+jar {
+	manifest {
+		attributes FMLAT: "greenthumb_at.cfg"
+	}
+}
+
 minecraft {
 	version = "1.7.10-10.13.2.1291"
 }

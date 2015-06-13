@@ -2,73 +2,69 @@ package com.five35.minecraft.greenthumb;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.eventhandler.Event.Result;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStem;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.Direction;
-import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.Event.Result;
-import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.player.BonemealEvent;
 
 @Mod(modid = "GreenThumb")
 public class GreenThumb {
-	@EventHandler
-	public void init(@SuppressWarnings("unused") final FMLInitializationEvent event) {
-		MinecraftForge.EVENT_BUS.register(this);
-	}
-
-	@ForgeSubscribe
+	@SubscribeEvent
 	@SuppressWarnings("static-method")
 	public void onBonemeal(final BonemealEvent event) {
 		if (event.world.isRemote) {
 			return;
 		}
 
-		if (event.ID == Block.cactus.blockID || event.ID == Block.reed.blockID) {
+		if (event.block == Blocks.cactus || event.block == Blocks.reeds) {
 			int height = 1;
-			int y = event.Y;
+			int y = event.y;
 
 			// count plant blocks below this one
-			while (event.world.getBlockId(event.X, --y, event.Z) == event.ID) {
+			while (event.world.getBlock(event.x, --y, event.z) == event.block) {
 				height++;
 			}
 
-			y = event.Y;
+			y = event.y;
 
 			// count plant blocks above this one, and also find the Y coordinate above the "plant stack"
-			while (event.world.getBlockId(event.X, ++y, event.Z) == event.ID) {
+			while (event.world.getBlock(event.x, ++y, event.z) == event.block) {
 				height++;
 			}
 
-			if (height < 3 && event.world.isAirBlock(event.X, y, event.Z)) {
-				event.world.setBlock(event.X, y, event.Z, event.ID);
-				Block.blocksList[event.ID].onNeighborBlockChange(event.world, event.X, y, event.Z, event.ID);
+			if (height < 3 && event.world.isAirBlock(event.x, y, event.z)) {
+				event.world.setBlock(event.x, y, event.z, event.block);
+				event.block.onNeighborBlockChange(event.world, event.x, y, event.z, event.block);
 			} else {
 				return;
 			}
-		} else if (event.ID == Block.melonStem.blockID || event.ID == Block.pumpkinStem.blockID) {
+		} else if (event.block == Blocks.melon_stem || event.block == Blocks.pumpkin_stem) {
 			// abort if stem isn't fully-grown (that's handled by the vanilla method)
-			if (event.world.getBlockMetadata(event.X, event.Y, event.Z) < 7) {
+			if (event.world.getBlockMetadata(event.x, event.y, event.z) < 7) {
 				return;
 			}
 
-			final BlockStem stem = (BlockStem) Block.blocksList[event.ID];
+			final BlockStem stem = (BlockStem) event.block;
 
-			if (event.world.getBlockId(event.X - 1, event.Y, event.Z) == stem.fruitType.blockID) {
+			if (event.world.getBlock(event.x - 1, event.y, event.z) == stem.field_149877_a) {
 				return;
 			}
 
-			if (event.world.getBlockId(event.X + 1, event.Y, event.Z) == stem.fruitType.blockID) {
+			if (event.world.getBlock(event.x + 1, event.y, event.z) == stem.field_149877_a) {
 				return;
 			}
 
-			if (event.world.getBlockId(event.X, event.Y, event.Z - 1) == stem.fruitType.blockID) {
+			if (event.world.getBlock(event.x, event.y, event.z - 1) == stem.field_149877_a) {
 				return;
 			}
 
-			if (event.world.getBlockId(event.X, event.Y, event.Z + 1) == stem.fruitType.blockID) {
+			if (event.world.getBlock(event.x, event.y, event.z + 1) == stem.field_149877_a) {
 				return;
 			}
 
@@ -78,14 +74,14 @@ public class GreenThumb {
 
 				while (true) {
 					final int direction = event.world.rand.nextInt(4);
-					final int x = event.X + Direction.offsetX[direction];
-					final int z = event.Z + Direction.offsetZ[direction];
+					final int x = event.x + Direction.offsetX[direction];
+					final int z = event.z + Direction.offsetZ[direction];
 
-					if (event.world.isAirBlock(x, event.Y, z)) {
-						final Block soil = Block.blocksList[event.world.getBlockId(x, event.Y - 1, z)];
+					if (event.world.isAirBlock(x, event.y, z)) {
+						final Block soil = event.world.getBlock(x, event.y - 1, z);
 
-						if (soil != null && (soil == Block.dirt || soil == Block.grass || soil.canSustainPlant(event.world, x, event.Y - 1, z, ForgeDirection.UP, stem))) {
-							event.world.setBlock(x, event.Y, z, stem.fruitType.blockID);
+						if (soil != null && (soil == Blocks.dirt || soil == Blocks.grass || soil.canSustainPlant(event.world, x, event.y - 1, z, ForgeDirection.UP, stem))) {
+							event.world.setBlock(x, event.y, z, stem.field_149877_a);
 
 							break;
 						}
@@ -97,8 +93,8 @@ public class GreenThumb {
 					}
 				}
 			}
-		} else if (event.ID == Block.netherStalk.blockID) {
-			int stage = event.world.getBlockMetadata(event.X, event.Y, event.Z);
+		} else if (event.block == Blocks.nether_wart) {
+			int stage = event.world.getBlockMetadata(event.x, event.y, event.z);
 
 			if (stage >= 3) {
 				return;
@@ -108,26 +104,26 @@ public class GreenThumb {
 			// chance of needing three applications is ~sqrt(.5) * ~sqrt(.5) == ~50%
 			stage += event.world.rand.nextFloat() < .707 ? 1 : 2;
 
-			event.world.setBlockMetadataWithNotify(event.X, event.Y, event.Z, Math.min(stage, 3), 2);
-		} else if (event.ID == Block.vine.blockID) {
-			int y = event.Y;
+			event.world.setBlockMetadataWithNotify(event.x, event.y, event.z, Math.min(stage, 3), 2);
+		} else if (event.block == Blocks.vine) {
+			int y = event.y;
 
-			while (event.world.getBlockId(event.X, --y, event.Z) == event.ID) {
+			while (event.world.getBlock(event.x, --y, event.z) == event.block) {
 				// find the block below the bottommost vine
 			}
 
-			if (!event.world.isAirBlock(event.X, y, event.Z) || y < 0) {
+			if (!event.world.isAirBlock(event.x, y, event.z) || y < 0) {
 				return;
 			}
 
-			event.world.setBlock(event.X, y, event.Z, event.ID, event.world.getBlockMetadata(event.X, y + 1, event.Z), 2);
-		} else if (event.ID == Block.waterlily.blockID) {
+			event.world.setBlock(event.x, y, event.z, event.block, event.world.getBlockMetadata(event.x, y + 1, event.z), 2);
+		} else if (event.block == Blocks.waterlily) {
 			int count = 0;
 
 			// count the lily pads in a 7x7 square centered on this one
 			for (int dX = -3; dX < 4; dX++) {
 				for (int dZ = -3; dZ < 4; dZ++) {
-					if (event.world.getBlockId(event.X + dX, event.Y, event.Z + dZ) == Block.waterlily.blockID) {
+					if (event.world.getBlock(event.x + dX, event.y, event.z + dZ) == Blocks.waterlily) {
 						count++;
 					}
 
@@ -141,11 +137,11 @@ public class GreenThumb {
 
 			// attempt to place a new lily pad in a 7x7 square centered on this one
 			while (true) {
-				final int x = event.X + event.world.rand.nextInt(7) - 3;
-				final int z = event.Z + event.world.rand.nextInt(7) - 3;
+				final int x = event.x + event.world.rand.nextInt(7) - 3;
+				final int z = event.z + event.world.rand.nextInt(7) - 3;
 
-				if (event.world.isAirBlock(x, event.Y, z) && Block.waterlily.canBlockStay(event.world, x, event.Y, z)) {
-					event.world.setBlock(x, event.Y, z, Block.waterlily.blockID, 0, 2);
+				if (event.world.isAirBlock(x, event.y, z) && Blocks.waterlily.canBlockStay(event.world, x, event.y, z)) {
+					event.world.setBlock(x, event.y, z, Blocks.waterlily, 0, 2);
 
 					break;
 				}
@@ -161,5 +157,10 @@ public class GreenThumb {
 
 		// unrecognized IDs have already returned
 		event.setResult(Result.ALLOW);
+	}
+
+	@EventHandler
+	public void preInit(@SuppressWarnings("unused") final FMLPreInitializationEvent event) {
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 }
