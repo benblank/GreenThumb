@@ -2,20 +2,10 @@ package com.five35.minecraft.greenthumb;
 
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.BlockStem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemDye;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
-import net.minecraft.world.World;
-import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.Event.Result;
@@ -24,42 +14,9 @@ import net.minecraftforge.event.entity.player.BonemealEvent;
 
 @Mod(modid = "GreenThumb")
 public class GreenThumb {
-	@Instance
-	public static GreenThumb instance;
-
-	static Configuration config;
-	static int fertilizerID;
-	public static Fertilizer fertilizer;
-
-	// this method is called within ItemDye wherever it would otherwise call ItemDye.applyBonemeal
-	public static boolean applyBonemeal(final ItemStack stack, final World world, final int x, final int y, final int z, final EntityPlayer player) {
-		if (GreenThumb.fertilizerID == 0) {
-			return ItemDye.applyBonemeal(stack, world, x, y, z, player);
-		}
-
-		return false;
-	}
-
-	@EventHandler
-	public static void preInit(final FMLPreInitializationEvent event) {
-		GreenThumb.config = new Configuration(event.getSuggestedConfigurationFile());
-		GreenThumb.config.load();
-
-		GreenThumb.fertilizerID = GreenThumb.config.getItem("fertilizer", 20732, "set to 0 to disable fertilizer and use bonemeal to grow plants").getInt();
-
-		GreenThumb.config.save(); // if config file was missing, this will write the defaults
-	}
-
 	@EventHandler
 	public void init(@SuppressWarnings("unused") final FMLInitializationEvent event) {
 		MinecraftForge.EVENT_BUS.register(this);
-
-		if (GreenThumb.fertilizerID > 0) {
-			GreenThumb.fertilizer = new Fertilizer(GreenThumb.fertilizerID);
-
-			GameRegistry.addShapelessRecipe(new ItemStack(GreenThumb.fertilizer), new ItemStack(Item.dyePowder, 1, 15), new ItemStack(Item.rottenFlesh));
-			BlockDispenser.dispenseBehaviorRegistry.putObject(GreenThumb.fertilizer, new FertilizerDispenserBehavior());
-		}
 	}
 
 	@ForgeSubscribe
