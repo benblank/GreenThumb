@@ -1,2 +1,0 @@
-Manifest-Version: 1.0
-FMLCorePlugin: com.five35.minecraft.greenthumb.LoadingPlugin
