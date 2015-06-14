@@ -5,9 +5,12 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockStem;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -161,6 +164,9 @@ public class GreenThumb {
 
 	@EventHandler
 	public void preInit(@SuppressWarnings("unused") final FMLPreInitializationEvent event) {
+		GameRegistry.registerItem(Fertilizer.getInstance(), Fertilizer.getInstance().getUnlocalizedName());
+		GameRegistry.addShapelessRecipe(new ItemStack(Fertilizer.getInstance()), new ItemStack(Items.dye, 1, 15), new ItemStack(Items.rotten_flesh));
+
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 }
