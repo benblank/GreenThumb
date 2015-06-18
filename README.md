@@ -6,7 +6,7 @@ Ever wish you could bonemeal a cactus?  There are several plants in Minecraft wh
 
 To give Rotten Flesh a use, and make plant growth require just a bit more resources, you can no longer grow plants with Bone Meal alone.  Instead, craft Bone Meal together with Rotten Flesh to produce Crude Fertilizer, which works exactly like vanilla Bone Meal.
 
-Don't like it?  Think it's a stupid change?  Just disable it in `config/GreenThumb.cfg` by changing the item ID for fertilizer to `0`.  Bone Meal will once again grow plants on its own, including the new plants listed below.
+Don't like it?  Think it's a stupid change?  Just disable it in `config/GreenThumb.cfg` by setting `greenthumb.enable_fertilizer` to false.  Bone Meal will once again grow plants on its own, including the new plants listed below.
 
 ### Plants
 

@@ -1,11 +1,19 @@
 package com.five35.minecraft.greenthumb;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.Event.Result;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.BlockStem;
@@ -16,9 +24,52 @@ import net.minecraft.util.Direction;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.player.BonemealEvent;
+import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.Logger;
 
 @Mod(modid = "GreenThumb")
 public class GreenThumb {
+	public static Config config;
+
+	@Instance
+	private static GreenThumb instance;
+
+	private static Logger logger;
+
+	public static GreenThumb getInstance() {
+		return GreenThumb.instance;
+	}
+
+	public static Logger getLogger() {
+		return GreenThumb.logger;
+	}
+
+	private static void readConfig(final File configFile) {
+		final Config defaults = ConfigFactory.load("GreenThumb");
+		final Config config;
+
+		if (configFile.canRead()) {
+			config = ConfigFactory.parseFile(configFile).withFallback(defaults);
+		} else if (configFile.exists()) {
+			GreenThumb.logger.warn("Cannot read settings file '%s', will use default values.", configFile.getAbsolutePath());
+
+			config = defaults;
+		} else {
+			try (
+				final InputStream input = GreenThumb.class.getResourceAsStream("/GreenThumb.conf");
+				final OutputStream output = new FileOutputStream(configFile)) {
+
+				IOUtils.copy(input, output);
+			} catch (final IOException ex) {
+				GreenThumb.logger.warn("Cannot create new settings file '%s', will use default values.", ex, configFile.getAbsolutePath());
+			}
+
+			config = defaults;
+		}
+
+		GreenThumb.config = config.resolve().getConfig("greenthumb");
+	}
+
 	@SubscribeEvent
 	@SuppressWarnings("static-method")
 	public void onBonemeal(final BonemealEvent event) {
@@ -164,10 +215,16 @@ public class GreenThumb {
 	}
 
 	@EventHandler
-	public void preInit(@SuppressWarnings("unused") final FMLPreInitializationEvent event) {
+	public void preInit(final FMLPreInitializationEvent event) {
+		GreenThumb.logger = event.getModLog();
+		GreenThumb.readConfig(event.getSuggestedConfigurationFile());
+
 		GameRegistry.registerItem(Fertilizer.getInstance(), Fertilizer.getInstance().getUnlocalizedName());
 		BlockDispenser.dispenseBehaviorRegistry.putObject(Fertilizer.getInstance(), new FertilizerDispenserBehavior());
-		GameRegistry.addShapelessRecipe(new ItemStack(Fertilizer.getInstance()), new ItemStack(Items.dye, 1, 15), new ItemStack(Items.rotten_flesh));
+
+		if (GreenThumb.config.getBoolean("enable_fertilizer")) {
+			GameRegistry.addShapelessRecipe(new ItemStack(Fertilizer.getInstance()), new ItemStack(Items.dye, 1, 15), new ItemStack(Items.rotten_flesh));
+		}
 
 		MinecraftForge.EVENT_BUS.register(this);
 	}
