@@ -17,10 +17,13 @@ import java.io.OutputStream;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.BlockStem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
+import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.entity.player.BonemealEvent;
@@ -35,6 +38,19 @@ public class GreenThumb {
 	private static GreenThumb instance;
 
 	private static Logger logger;
+
+	// BonemealTransformer redirects applyBonemeal calls within ItemDye here.
+	public static boolean applyBonemeal(final ItemStack stack, final World world, final int x, final int y, final int z, final EntityPlayer player) {
+		if (stack.getItem() instanceof ItemDye && GreenThumb.config.getBoolean("enable_fertilizer")) {
+			GreenThumb.logger.debug("Can't apply bonemeal when fertilizer is enabled.");
+
+			return false;
+		}
+
+		GreenThumb.logger.debug("Applying bonemeal.");
+
+		return ItemDye.applyBonemeal(stack, world, x, y, z, player);
+	}
 
 	public static GreenThumb getInstance() {
 		return GreenThumb.instance;

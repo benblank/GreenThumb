@@ -17,7 +17,7 @@ public class LoadingPlugin implements IFMLLoadingPlugin {
 
 	@Override
 	public String[] getASMTransformerClass() {
-		return null;
+		return new String[] { "com.five35.minecraft.greenthumb.BonemealTransformer" };
 	}
 
 	@Override
