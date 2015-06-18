@@ -28,6 +28,7 @@ dependencies {
 jar {
 	manifest {
 		attributes FMLAT: "greenthumb_at.cfg"
+		attributes FMLCorePlugin: "com.five35.minecraft.greenthumb.LoadingPlugin"
 	}
 }
 
