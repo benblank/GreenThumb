@@ -1,11 +1,12 @@
 package com.five35.minecraft.greenthumb;
 
-import cpw.mods.fml.common.Loader;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 public class Fertilizer extends Item {
@@ -20,15 +21,14 @@ public class Fertilizer extends Item {
 		super();
 
 		this.setCreativeTab(CreativeTabs.tabMaterials);
-		this.setTextureName(Loader.instance().activeModContainer().getModId() + ":" + Fertilizer.NAME);
 		this.setUnlocalizedName(Fertilizer.NAME);
 	}
 
 	@Override
-	public boolean onItemUse(final ItemStack stack, final EntityPlayer player, final World world, final int x, final int y, final int z, final int side, final float hitX, final float hitY, final float hitZ) {
-		if (ItemDye.applyBonemeal(stack, world, x, y, z, player)) {
+	public boolean onItemUse(final ItemStack stack, final EntityPlayer player, final World world, final BlockPos position, final EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
+		if (ItemDye.applyBonemeal(stack, world, position, player)) {
 			if (!world.isRemote) {
-				world.playAuxSFX(2005, x, y, z, 0);
+				world.playAuxSFX(2005, position, 0);
 			}
 
 			return true;
