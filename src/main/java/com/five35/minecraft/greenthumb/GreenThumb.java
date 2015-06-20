@@ -13,6 +13,10 @@ import net.minecraft.block.BlockDispenser;
 import net.minecraft.block.BlockNetherWart;
 import net.minecraft.block.BlockStem;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemModelMesher;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -23,13 +27,16 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.BonemealEvent;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
@@ -87,6 +94,19 @@ public class GreenThumb {
 		}
 
 		GreenThumb.config = config.resolve().getConfig("greenthumb");
+	}
+
+	@EventHandler
+	@SuppressWarnings("static-method")
+	public void init(final FMLInitializationEvent event) {
+		if (event.getSide() == Side.CLIENT) {
+			final ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
+			final String modId = Loader.instance().activeModContainer().getModId();
+			final String name = modId + ":" + Fertilizer.getName();
+
+			mesher.register(Fertilizer.getInstance(), 0, new ModelResourceLocation(name, "inventory"));
+			ModelBakery.addVariantName(Fertilizer.getInstance(), name);
+		}
 	}
 
 	@SubscribeEvent

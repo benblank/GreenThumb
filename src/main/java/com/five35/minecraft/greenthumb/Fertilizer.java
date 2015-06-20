@@ -17,6 +17,10 @@ public class Fertilizer extends Item {
 		return Fertilizer.INSTANCE;
 	}
 
+	public static String getName() {
+		return Fertilizer.NAME;
+	}
+
 	public Fertilizer() {
 		super();
 
